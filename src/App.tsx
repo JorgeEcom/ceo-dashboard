@@ -11,13 +11,10 @@ export default function App() {
   return (
     <DashboardProvider>
       <BrowserRouter>
-        <div className="flex min-h-screen">
-          {/* Sidebar (fixed 256px) */}
+        <div style={{ display: 'flex', minHeight: '100vh' }}>
           <Sidebar />
-
-          {/* Main content */}
-          <main className="flex-1 ml-64 p-6 min-h-screen" style={{ backgroundColor: 'var(--color-bg)' }}>
-            <div className="max-w-6xl mx-auto">
+          <main style={{ flex: 1, marginLeft: 256, padding: 32, minHeight: '100vh', backgroundColor: '#f8fafc' }}>
+            <div style={{ maxWidth: 1200, margin: '0 auto' }}>
               <Routes>
                 <Route path="/"          element={<Overview  />} />
                 <Route path="/crm"       element={<CRM       />} />
