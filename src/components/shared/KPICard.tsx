@@ -1,67 +1,72 @@
-import React from 'react'
-import clsx from 'clsx'
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { LucideIcon } from 'lucide-react'
+import { formatBRL, formatPercent, formatNumber, trendColor, trendBg } from '@/utils/formatters'
 
 interface KPICardProps {
-  label: string
-  value: string | number
+  title: string
+  value: number
+  format?: 'currency' | 'percent' | 'number'
   change?: number
   changeLabel?: string
-  prefix?: string
-  suffix?: string
-  icon?: React.ReactNode
-  colorClass?: string
-  onClick?: () => void
+  icon?: LucideIcon
+  iconColor?: string
+  subtitle?: string
+  loading?: boolean
 }
 
 export default function KPICard({
-  label,
+  title,
   value,
+  format = 'number',
   change,
   changeLabel,
-  prefix,
-  suffix,
-  icon,
-  colorClass = 'text-brand-500',
-  onClick,
+  icon: Icon,
+  iconColor = 'text-brand-500',
+  subtitle,
+  loading = false,
 }: KPICardProps) {
-  const isPositive = change !== undefined && change > 0
-  const isNegative = change !== undefined && change < 0
+  const formattedValue =
+    format === 'currency'
+      ? formatBRL(value)
+      : format === 'percent'
+      ? formatPercent(value)
+      : formatNumber(value)
+
+  if (loading) {
+    return (
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 animate-pulse">
+        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2 mb-4" />
+        <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-3/4 mb-2" />
+        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/3" />
+      </div>
+    )
+  }
 
   return (
-    <div
-      className={clsx('card flex flex-col gap-3', onClick && 'cursor-pointer hover:shadow-md transition-shadow')}
-      onClick={onClick}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <span className="label">{label}</span>
-        {icon && (
-          <div className={clsx('w-9 h-9 rounded-xl flex items-center justify-center', colorClass, 'bg-current/10')}>
-            <span className={colorClass}>{icon}</span>
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
+          {subtitle && (
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{subtitle}</p>
+          )}
+        </div>
+        {Icon && (
+          <div className="p-2 rounded-lg bg-brand-50 dark:bg-brand-900/20">
+            <Icon className={`w-5 h-5 ${iconColor}`} />
           </div>
         )}
       </div>
 
-      {/* Value */}
-      <div className="flex items-baseline gap-1">
-        {prefix && <span className="text-lg font-semibold" style={{ color: 'var(--color-muted)' }}>{prefix}</span>}
-        <span className="metric">{value}</span>
-        {suffix && <span className="text-lg font-semibold" style={{ color: 'var(--color-muted)' }}>{suffix}</span>}
-      </div>
+      <p className="text-2xl font-bold text-slate-900 dark:text-white mb-3">{formattedValue}</p>
 
-      {/* Trend */}
       {change !== undefined && (
-        <div
-          className={clsx(
-            'flex items-center gap-1.5 px-2.5 py-1 rounded-lg w-fit text-sm font-medium',
-            isPositive && 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400',
-            isNegative && 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400',
-            !isPositive && !isNegative && 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400',
-          )}
-        >
-          {isPositive ? <TrendingUp size={14} /> : isNegative ? <TrendingDown size={14} /> : <Minus size={14} />}
+        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${trendBg(change)} ${trendColor(change)}`}>
+          <span>{change > 0 ? '\u25b2' : change < 0 ? '\u25bc' : '\u2013'}</span>
           <span>
-            {change > 0 ? '+' : ''}{change}% {changeLabel ?? 'vs mês anterior'}
+            {change > 0 ? '+' : ''}{change}{'% '}{changeLabel !== undefined ? changeLabel : 'vs m\u00eas anterior'}
           </span>
         </div>
+      )}
+    </div>
+  )
+}
