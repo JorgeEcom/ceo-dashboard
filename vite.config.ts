@@ -4,6 +4,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
+    allowedHosts: 'all',
+    host: true,
     proxy: {
       '/api/ghl': {
         target: 'https://services.leadconnectorhq.com',
