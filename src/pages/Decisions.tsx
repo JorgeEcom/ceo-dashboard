@@ -8,16 +8,16 @@ import clsx from 'clsx'
 const SEVERITY_FILTERS: { value: DecisionSeverity | 'all'; label: string; icon: React.ReactNode }[] = [
   { value: 'all',         label: 'Todas',        icon: <Filter size={14} />       },
   { value: 'critical',    label: 'Urgentes',     icon: <AlertTriangle size={14} /> },
-  { value: 'warning',     label: 'Atenção',      icon: <AlertCircle size={14} />   },
+  { value: 'warning',     label: 'AtenÃ§Ã£o',      icon: <AlertCircle size={14} />   },
   { value: 'opportunity', label: 'Oportunidades',icon: <Lightbulb size={14} />     },
 ]
 
 const CATEGORY_FILTERS: { value: DecisionCategory | 'all'; label: string }[] = [
-  { value: 'all',        label: 'Todas as Áreas' },
+  { value: 'all',        label: 'Todas as Ãreas' },
   { value: 'crm',        label: 'CRM'            },
-  { value: 'tax',        label: 'Tributário'     },
+  { value: 'tax',        label: 'TributÃ¡rio'     },
   { value: 'financial',  label: 'Financeiro'     },
-  { value: 'operations', label: 'Operações'      },
+  { value: 'operations', label: 'OperaÃ§Ãµes'      },
   { value: 'marketing',  label: 'Marketing'      },
 ]
 
@@ -25,67 +25,67 @@ const CATEGORY_FILTERS: { value: DecisionCategory | 'all'; label: string }[] = [
 const CEO_DECISION_POINTS = [
   {
     id: 'dp-1',
-    icon: '👥',
-    title: 'Ativação de SDR',
-    when: 'Leads sem contato após 24h ou acúmulo em "Novo lead"',
-    action: 'Cobrar SDR responsável ou redistribuir leads',
-    impact: 'Diretamente afeta taxa de conversão e CAC',
+    icon: 'ð¥',
+    title: 'AtivaÃ§Ã£o de SDR',
+    when: 'Leads sem contato apÃ³s 24h ou acÃºmulo em "Novo lead"',
+    action: 'Cobrar SDR responsÃ¡vel ou redistribuir leads',
+    impact: 'Diretamente afeta taxa de conversÃ£o e CAC',
   },
   {
     id: 'dp-2',
-    icon: '📅',
+    icon: 'ð',
     title: 'Follow-up de Proposta',
-    when: 'Proposta enviada há +3 dias sem resposta',
-    action: 'Closer faz follow-up por WhatsApp ou ligação',
+    when: 'Proposta enviada hÃ¡ +3 dias sem resposta',
+    action: 'Closer faz follow-up por WhatsApp ou ligaÃ§Ã£o',
     impact: 'Reduz ciclo de vendas e evita perda de contrato',
   },
   {
     id: 'dp-3',
-    icon: '📊',
-    title: 'Revisão do Pitch de Vendas',
-    when: 'Taxa de conversão abaixo de 15%',
-    action: 'Reunião com equipe de closers para revisar abordagem',
-    impact: 'Cada 1% de melhora na conversão = mais receita mensal',
+    icon: 'ð',
+    title: 'RevisÃ£o do Pitch de Vendas',
+    when: 'Taxa de conversÃ£o abaixo de 15%',
+    action: 'ReuniÃ£o com equipe de closers para revisar abordagem',
+    impact: 'Cada 1% de melhora na conversÃ£o = mais receita mensal',
   },
   {
     id: 'dp-4',
-    icon: '📋',
+    icon: 'ð',
     title: 'Entrega de Guias Fiscais',
-    when: 'Guias pendentes próximas ao vencimento',
-    action: 'Priorizar equipe contábil para emissão urgente',
-    impact: 'Multa do cliente por guia não entregue = risco de churn',
+    when: 'Guias pendentes prÃ³ximas ao vencimento',
+    action: 'Priorizar equipe contÃ¡bil para emissÃ£o urgente',
+    impact: 'Multa do cliente por guia nÃ£o entregue = risco de churn',
   },
   {
     id: 'dp-5',
-    icon: '🏦',
-    title: 'Planejamento Tributário',
-    when: 'Cliente pagando próximo à alíquota nominal',
-    action: 'Analisar créditos PIS/COFINS e enquadramento de regime',
-    impact: 'Diferencial competitivo + retenção de clientes',
+    icon: 'ð¦',
+    title: 'Planejamento TributÃ¡rio',
+    when: 'Cliente pagando prÃ³ximo Ã  alÃ­quota nominal',
+    action: 'Analisar crÃ©ditos PIS/COFINS e enquadramento de regime',
+    impact: 'Diferencial competitivo + retenÃ§Ã£o de clientes',
   },
   {
     id: 'dp-6',
-    icon: '⚠️',
-    title: 'Fechamento Contábil Atrasado',
+    icon: 'â ï¸',
+    title: 'Fechamento ContÃ¡bil Atrasado',
     when: 'Fechamento mensal em atraso',
     action: 'Identificar gargalo (dados faltantes, equipe sobrecarregada)',
-    impact: 'Impacta entrega de guias e satisfação do cliente',
+    impact: 'Impacta entrega de guias e satisfaÃ§Ã£o do cliente',
   },
   {
     id: 'dp-7',
-    icon: '📈',
+    icon: 'ð',
     title: 'Onboarding de Novo Cliente',
     when: 'Proposta fechada sem onboarding iniciado',
     action: 'Acionar CS para iniciar coleta de documentos em 24h',
-    impact: 'First Impression define retenção de longo prazo',
+    impact: 'First Impression define retenÃ§Ã£o de longo prazo',
   },
   {
     id: 'dp-8',
-    icon: '💰',
-    title: 'Revisão de CAC',
-    when: 'Custo de aquisição de cliente subindo mês a mês',
+    icon: 'ð°',
+    title: 'RevisÃ£o de CAC',
+    when: 'Custo de aquisiÃ§Ã£o de cliente subindo mÃªs a mÃªs',
     action: 'Revisar canais de marketing e qualidade dos leads',
-    impact: 'CAC alto corrói margem e escala do negócio',
+    impact: 'CAC alto corrÃ³i margem e escala do negÃ³cio',
   },
 ]
 
@@ -114,10 +114,10 @@ export default function Decisions() {
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: 'var(--color-text)' }}>
             <Brain size={24} className="text-brand-500" />
-            Centro de Decisões CEO
+            Centro de DecisÃµes CEO
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--color-muted)' }}>
-            IA analisando seus dados em tempo real — vocà decide, ela aponta
+            IA analisando seus dados em tempo real â vocÃ  decide, ela aponta
           </p>
         </div>
         <button onClick={refresh} className="btn-primary">
@@ -132,7 +132,7 @@ export default function Decisions() {
           <p className="metric text-red-600 dark:text-red-400">{criticalCount}</p>
         </div>
         <div className="card border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-900/10">
-          <p className="label">Atenção</p>
+          <p className="label">AtenÃ§Ã£o</p>
           <p className="metric text-amber-600 dark:text-amber-400">{warningCount}</p>
         </div>
         <div className="card border-l-4 border-l-emerald-500 bg-emerald-50 dark:bg-emerald-900/10">
@@ -144,8 +144,8 @@ export default function Decisions() {
       {/* Tabs */}
       <div className="flex gap-2 border-b" style={{ borderColor: 'var(--color-border)' }}>
         {[
-          { id: 'active', label: 'Decisões da IA' },
-          { id: 'map',    label: 'Mapa de Decisões do CEO' },
+          { id: 'active', label: 'DecisÃµes da IA' },
+          { id: 'map',    label: 'Mapa de DecisÃµes do CEO' },
         ].map(tab => (
           <button
             key={tab.id}
@@ -199,7 +199,7 @@ export default function Decisions() {
                 color: showResolved ? 'white' : 'var(--color-muted)',
               }}
             >
-              {showResolved ? '✓ Mostrando resolvidas' : 'Mostrar resolvidas'}
+              {showResolved ? 'â Mostrando resolvidas' : 'Mostrar resolvidas'}
             </button>
           </div>
 
@@ -207,12 +207,12 @@ export default function Decisions() {
           <div className="space-y-3">
             {filtered.length === 0 ? (
               <div className="card text-center py-12">
-                <p className="text-4xl mb-3">🎉</p>
+                <p className="text-4xl mb-3">ð</p>
                 <p className="font-bold text-lg" style={{ color: 'var(--color-text)' }}>
                   Tudo em ordem!
                 </p>
                 <p className="text-sm mt-1" style={{ color: 'var(--color-muted)' }}>
-                  Nenhuma decisão pendente com os filtros selecionados
+                  Nenhuma decisÃ£o pendente com os filtros selecionados
                 </p>
               </div>
             ) : (
@@ -224,7 +224,7 @@ export default function Decisions() {
         /* CEO Decision Map */
         <div className="space-y-4">
           <p className="text-sm" style={{ color: 'var(--color-muted)' }}>
-            Todos os pontos onde você, como CEO, toma decisões estratégicas. A IA monitora cada um deles automaticamente.
+            Todos os pontos onde vocÃª, como CEO, toma decisÃµes estratÃ©gicas. A IA monitora cada um deles automaticamente.
           </p>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {CEO_DECISION_POINTS.map(dp => (
@@ -241,7 +241,7 @@ export default function Decisions() {
                         {dp.when}
                       </div>
                       <div>
-                        <span className="font-semibold" style={{ color: 'var(--color-text)' }}>Ação: </span>
+                        <span className="font-semibold" style={{ color: 'var(--color-text)' }}>AÃ§Ã£o: </span>
                         {dp.action}
                       </div>
                       <div>
@@ -257,3 +257,5 @@ export default function Decisions() {
         </div>
       )}
     </div>
+  )
+}
