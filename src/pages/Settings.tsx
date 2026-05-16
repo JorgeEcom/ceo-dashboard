@@ -1,161 +1,69 @@
-import { useState, useEffect } from 'react'
-import { Key, MapPin, CheckCircle, Eye, EyeOff, RefreshCw, Info } from 'lucide-react'
+import { useState } from 'react'
+import { Save, Eye, EyeOff, Wifi, WifiOff } from 'lucide-react'
 
 export default function Settings() {
-  const [apiKey, setApiKey]         = useState('')
-  const [locationId, setLocationId] = useState('')
-  const [showKey, setShowKey]       = useState(false)
-  const [saved, setSaved]           = useState(false)
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem('ghl_api_key') || '')
+  const [locationId, setLocationId] = useState(() => localStorage.getItem('ghl_location_id') || '')
+  const [showKey, setShowKey] = useState(false)
+  const [saved, setSaved] = useState(false)
 
-  useEffect(() => {
-    setApiKey(localStorage.getItem('ghl_api_key') ?? '')
-    setLocationId(localStorage.getItem('ghl_location_id') ?? '')
-  }, [])
+  const isConnected = Boolean(apiKey && locationId)
 
   const handleSave = () => {
     localStorage.setItem('ghl_api_key', apiKey)
     localStorage.setItem('ghl_location_id', locationId)
     setSaved(true)
-    setTimeout(() => {
-      setSaved(false)
-      window.location.reload()
-    }, 1500)
+    setTimeout(() => { setSaved(false); window.location.reload() }, 1500)
   }
 
-  const handleClear = () => {
-    localStorage.removeItem('ghl_api_key')
-    localStorage.removeItem('ghl_location_id')
-    setApiKey('')
-    setLocationId('')
-  }
+  const inputStyle = { width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 14, outline: 'none', boxSizing: 'border-box' as const }
+  const labelStyle = { fontSize: 13, fontWeight: 600 as const, color: '#374151', display: 'block' as const, marginBottom: 6 }
 
   return (
-    <div className="space-y-6 max-w-2xl">
-      {/* Header */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 640 }}>
       <div>
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text)' }}>Configurações</h1>
-        <p className="text-sm mt-1" style={{ color: 'var(--color-muted)' }}>
-          Configure sua API do GoHighLevel para conectar dados reais
-        </p>
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#111827', margin: 0 }}>Configuracoes</h1>
+        <p style={{ fontSize: 13, color: '#9ca3af', marginTop: 4 }}>Conecte sua conta GoHighLevel para dados em tempo real</p>
       </div>
 
-      {/* How to get API key */}
-      <div className="card border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/10">
-        <div className="flex items-start gap-3">
-          <Info size={18} className="text-blue-500 mt-0.5 shrink-0" />
-          <div className="text-sm">
-            <p className="font-semibold mb-2" style={{ color: 'var(--color-text)' }}>
-              Como obter suas credenciais do GoHighLevel:
-            </p>
-            <ol className="space-y-1.5" style={{ color: 'var(--color-muted)' }}>
-              <li>1. Acesse seu GHL → <strong>Settings → Private Integrations</strong></li>
-              <li>2. Clique em <strong>"Add New Integration"</strong></li>
-              <li>3. Selecione as permissões: <strong>Contacts (read), Opportunities (read), Pipelines (read)</strong></li>
-              <li>4. Copie o token gerado e cole abaixo</li>
-              <li>5. O <strong>Location ID</strong> está em Settings → Business Profile → Location ID</li>
-            </ol>
-          </div>
-        </div>
+      <div style={{ borderRadius: 12, padding: 16, border: '1px solid', display: 'flex', alignItems: 'center', gap: 12, borderColor: isConnected ? '#bbf7d0' : '#e5e7eb', backgroundColor: isConnected ? '#f0fdf4' : '#f9fafb' }}>
+        {isConnected
+          ? <><Wifi size={18} style={{ color: '#10b981' }} /><div><p style={{ fontWeight: 600, color: '#065f46', fontSize: 14, margin: 0 }}>Conectado ao GoHighLevel</p><p style={{ fontSize: 12, color: '#10b981', margin: '2px 0 0' }}>Dados em tempo real ativos</p></div></>
+          : <><WifiOff size={18} style={{ color: '#9ca3af' }} /><div><p style={{ fontWeight: 600, color: '#374151', fontSize: 14, margin: 0 }}>Modo demonstracao</p><p style={{ fontSize: 12, color: '#9ca3af', margin: '2px 0 0' }}>Configure sua API Key para dados reais</p></div></>
+        }
       </div>
 
-      {/* API Config Card */}
-      <div className="card space-y-5">
-        <h2 className="font-bold text-base" style={{ color: 'var(--color-text)' }}>
-          GoHighLevel API v2
-        </h2>
-
-        {/* API Key */}
+      <div style={{ background: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', border: '1px solid #f0f0f0', display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <h2 style={{ fontSize: 15, fontWeight: 600, color: '#111827', margin: 0 }}>GoHighLevel API v2</h2>
         <div>
-          <label className="label block mb-2 flex items-center gap-1.5">
-            <Key size={13} />
-            Private Integration Token (API Key)
-          </label>
-          <div className="relative">
-            <input
-              type={showKey ? 'text' : 'password'}
-              value={apiKey}
-              onChange={e => setApiKey(e.target.value)}
-              placeholder="eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
-              className="w-full px-4 py-3 rounded-xl border text-sm font-mono outline-none focus:ring-2 focus:ring-brand-500 pr-12"
-              style={{
-                borderColor: 'var(--color-border)',
-                backgroundColor: 'var(--color-bg)',
-                color: 'var(--color-text)',
-              }}
-            />
-            <button
-              onClick={() => setShowKey(v => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2"
-              style={{ color: 'var(--color-muted)' }}
-            >
+          <label style={labelStyle}>API Key (Bearer Token)</label>
+          <div style={{ position: 'relative' }}>
+            <input type={showKey ? 'text' : 'password'} value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="Bearer token da API GHL..." style={{ ...inputStyle, paddingRight: 40 }} />
+            <button onClick={() => setShowKey(!showKey)} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af' }}>
               {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </div>
+          <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 6 }}>GHL Settings &rarr; API Keys &rarr; criar nova chave</p>
         </div>
-
-        {/* Location ID */}
         <div>
-          <label className="label block mb-2 flex items-center gap-1.5">
-            <MapPin size={13} />
-            Location ID (Sub-account)
-          </label>
-          <input
-            type="text"
-            value={locationId}
-            onChange={e => setLocationId(e.target.value)}
-            placeholder="7HFhsiPqomIHYV0aJHpI"
-            className="w-full px-4 py-3 rounded-xl border text-sm font-mono outline-none focus:ring-2 focus:ring-brand-500"
-            style={{
-              borderColor: 'var(--color-border)',
-              backgroundColor: 'var(--color-bg)',
-              color: 'var(--color-text)',
-            }}
-          />
+          <label style={labelStyle}>Location ID</label>
+          <input type="text" value={locationId} onChange={e => setLocationId(e.target.value)} placeholder="Ex: GS0MPCOqtgJUjUIIHuTx" style={inputStyle} />
+          <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 6 }}>Encontrado na URL: app.gruposg3.com.br/v2/location/<strong>ID</strong>/...</p>
         </div>
-
-        {/* Actions */}
-        <div className="flex gap-3">
-          <button
-            onClick={handleSave}
-            disabled={!apiKey || !locationId}
-            className="btn-primary flex items-center gap-2 flex-1 justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {saved ? (
-              <><CheckCircle size={16} /> Salvo! Recarregando...</>
-            ) : (
-              <><RefreshCw size={16} /> Salvar e Conectar</>
-            )}
-          </button>
-          <button onClick={handleClear} className="btn-ghost border px-4" style={{ borderColor: 'var(--color-border)' }}>
-            Limpar
-          </button>
-        </div>
+        <button onClick={handleSave} style={{ padding: '10px 20px', borderRadius: 8, border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 14, color: '#fff', backgroundColor: saved ? '#10b981' : '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'background 0.2s' }}>
+          <Save size={16} />
+          {saved ? 'Salvo com sucesso!' : 'Salvar e Conectar'}
+        </button>
       </div>
 
-      {/* Security note */}
-      <div className="card" style={{ backgroundColor: 'var(--color-bg)' }}>
-        <h3 className="font-semibold text-sm mb-2" style={{ color: 'var(--color-text)' }}>
-          Segurança
-        </h3>
-        <p className="text-sm" style={{ color: 'var(--color-muted)' }}>
-          Suas credenciais são armazenadas apenas no <strong>localStorage do seu navegador</strong> —
-          nunca são enviadas para nenhum servidor externo além da API do GoHighLevel.
-          Para produção, recomenda-se configurar as variáveis de ambiente <code className="text-xs bg-slate-100 dark:bg-slate-700 px-1 py-0.5 rounded">VITE_GHL_API_KEY</code> e <code className="text-xs bg-slate-100 dark:bg-slate-700 px-1 py-0.5 rounded">VITE_GHL_LOCATION_ID</code> no servidor.
-        </p>
-      </div>
-
-      {/* About */}
-      <div className="card">
-        <h3 className="font-semibold text-sm mb-3" style={{ color: 'var(--color-text)' }}>
-          Sobre este Dashboard
-        </h3>
-        <div className="text-sm space-y-1.5" style={{ color: 'var(--color-muted)' }}>
-          <p><strong>Versão:</strong> 1.0.0</p>
-          <p><strong>Stack:</strong> React 18 + TypeScript + Tailwind CSS + Recharts</p>
-          <p><strong>API:</strong> GoHighLevel v2 (somente leitura)</p>
-          <p><strong>Atualização:</strong> Automática a cada 5 minutos</p>
-          <p><strong>Dados tributários:</strong> Entrada manual com análise de IA</p>
-        </div>
+      <div style={{ background: '#eef2ff', borderRadius: 12, padding: 20, border: '1px solid #c7d2fe' }}>
+        <h3 style={{ fontSize: 13, fontWeight: 600, color: '#3730a3', margin: '0 0 12px' }}>Como Conectar</h3>
+        {['Acesse GHL Settings > Company > API Keys', 'Crie uma nova API Key e copie o Bearer token', 'Seu Location ID ja esta preenchido: GS0MPCOqtgJUjUIIHuTx', 'Cole o Bearer token no campo acima e clique Salvar', 'O dashboard vai recarregar com seus dados reais'].map((step, i) => (
+          <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 8 }}>
+            <span style={{ width: 20, height: 20, borderRadius: '50%', backgroundColor: '#6366f1', color: '#fff', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{i + 1}</span>
+            <p style={{ fontSize: 13, color: '#4338ca', margin: 0 }}>{step}</p>
+          </div>
+        ))}
       </div>
     </div>
   )
