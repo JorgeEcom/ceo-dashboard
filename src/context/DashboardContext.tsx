@@ -1,12 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import type { GHLOpportunity, GHLPipeline, CEODecision, TaxClient } from '../types'
 import { fetchAllCRMData } from '../services/ghl.service'
-import {
-  generateCEODecisions,
-  getMockOpportunities,
-  getMockPipeline,
-  getMockTaxClients,
-} from '../utils/aiAnalysis'
+import { generateCEODecisions, getMockOpportunities, getMockPipeline, getMockTaxClients } from '../utils/aiAnalysis'
 
 interface DashboardState {
   opportunities: GHLOpportunity[]
@@ -20,8 +15,6 @@ interface DashboardState {
   refresh: () => void
   resolveDecision: (id: string) => void
   updateTaxClients: (clients: TaxClient[]) => void
-  theme: 'light' | 'dark'
-  toggleTheme: () => void
 }
 
 const DashboardContext = createContext<DashboardState | null>(null)
@@ -29,102 +22,62 @@ const DashboardContext = createContext<DashboardState | null>(null)
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [opportunities, setOpportunities] = useState<GHLOpportunity[]>([])
   const [pipeline, setPipeline] = useState<GHLPipeline | null>(null)
-  const [taxClients, setTaxClients] = useState<TaxClient[]>(getMockTaxClients())
+  const [taxClients, setTaxClients] = useState<TaxClient[]>([])
   const [decisions, setDecisions] = useState<CEODecision[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
-  const [isDemo, setIsDemo] = useState(true)
+  const [isDemo, setIsDemo] = useState(false)
 
-  const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null
-  const [theme, setTheme] = useState<'light' | 'dark'>(savedTheme ?? 'light')
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark')
-    localStorage.setItem('theme', theme)
-  }, [theme])
-
-  const toggleTheme = () => setTheme(t => (t === 'light' ? 'dark' : 'light'))
-
-  const refresh = useCallback(async () => {
-    const apiKey = localStorage.getItem('ghl_api_key') || import.meta.env.VITE_GHL_API_KEY
-    const locationId = localStorage.getItem('ghl_location_id') || import.meta.env.VITE_GHL_LOCATION_ID
-
-    // If no credentials configured, use demo data
-    if (!apiKey || !locationId) {
-      const mockOpps = getMockOpportunities()
-      const mockPipeline = getMockPipeline()
-      setOpportunities(mockOpps)
-      setPipeline(mockPipeline)
-      setDecisions(generateCEODecisions(mockOpps, mockPipeline, taxClients))
-      setLastRefresh(new Date())
-      setIsDemo(true)
-      return
-    }
-
+  const loadData = useCallback(async () => {
     setLoading(true)
     setError(null)
+    const apiKey = localStorage.getItem('ghl_api_key') || ''
+    const locationId = localStorage.getItem('ghl_location_id') || ''
     try {
-      const { opportunities: opps, pipelines } = await fetchAllCRMData()
-      const mainPipeline = pipelines[0] ?? null
-      // Enrich opportunities with stage name
-      const enriched = opps.map(o => ({
-        ...o,
-        pipelineStageName: mainPipeline?.stages.find(s => s.id === o.pipelineStageId)?.name,
-      }))
-      setOpportunities(enriched)
-      setPipeline(mainPipeline)
-      setDecisions(generateCEODecisions(enriched, mainPipeline, taxClients))
-      setLastRefresh(new Date())
-      setIsDemo(false)
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Erro ao buscar dados do CRM'
-      setError(msg)
-      // Fall back to demo data
-      const mockOpps = getMockOpportunities()
-      const mockPipeline = getMockPipeline()
-      setOpportunities(mockOpps)
-      setPipeline(mockPipeline)
-      setDecisions(generateCEODecisions(mockOpps, mockPipeline, taxClients))
+      let opps: GHLOpportunity[]
+      if (apiKey && locationId) {
+        setIsDemo(false)
+        const data = await fetchAllCRMData(apiKey, locationId)
+        setOpportunities(data.opportunities)
+        setPipeline(data.pipeline)
+        opps = data.opportunities
+      } else {
+        setIsDemo(true)
+        opps = getMockOpportunities()
+        setOpportunities(opps)
+        setPipeline(getMockPipeline())
+      }
+      const clients = getMockTaxClients()
+      setTaxClients(clients)
+      setDecisions(generateCEODecisions(opps, clients))
+    } catch (err) {
       setIsDemo(true)
+      const opps = getMockOpportunities()
+      setOpportunities(opps)
+      setPipeline(getMockPipeline())
+      const clients = getMockTaxClients()
+      setTaxClients(clients)
+      setDecisions(generateCEODecisions(opps, clients))
+      setError('Erro ao conectar GHL. Modo demo ativo.')
     } finally {
       setLoading(false)
+      setLastRefresh(new Date())
     }
-  }, [taxClients])
+  }, [])
 
-  useEffect(() => {
-    refresh()
-    const interval = setInterval(refresh, 5 * 60 * 1000) // refresh every 5 min
-    return () => clearInterval(interval)
-  }, [refresh])
+  useEffect(() => { loadData() }, [loadData])
 
-  const resolveDecision = (id: string) => {
-    setDecisions(prev => prev.map(d => (d.id === id ? { ...d, resolved: true } : d)))
-  }
+  const resolveDecision = useCallback((id: string) => {
+    setDecisions(prev => prev.map(d => d.id === id ? { ...d, resolved: true } : d))
+  }, [])
 
-  const updateTaxClients = (clients: TaxClient[]) => {
+  const updateTaxClients = useCallback((clients: TaxClient[]) => {
     setTaxClients(clients)
-    setDecisions(generateCEODecisions(opportunities, pipeline, clients))
-  }
+  }, [])
 
   return (
-    <DashboardContext.Provider
-      value={{
-        opportunities,
-        pipeline,
-        taxClients,
-        decisions,
-        loading,
-        error,
-        lastRefresh,
-        isDemo,
-        refresh,
-        resolveDecision,
-        updateTaxClients,
-        theme,
-        toggleTheme,
-      }}
-    >
+    <DashboardContext.Provider value={{ opportunities, pipeline, taxClients, decisions, loading, error, lastRefresh, isDemo, refresh: loadData, resolveDecision, updateTaxClients }}>
       {children}
     </DashboardContext.Provider>
   )
