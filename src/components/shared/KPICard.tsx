@@ -1,72 +1,44 @@
 import { LucideIcon } from 'lucide-react'
-import { formatBRL, formatPercent, formatNumber, trendColor, trendBg } from '@/utils/formatters'
+import { formatBRL, formatPercent, formatNumber, trendColor } from '../../utils/formatters'
 
 interface KPICardProps {
   title: string
-  value: number
-  format?: 'currency' | 'percent' | 'number'
-  change?: number
-  changeLabel?: string
-  icon?: LucideIcon
-  iconColor?: string
+  value: string | number
   subtitle?: string
-  loading?: boolean
+  trend?: number
+  format?: 'brl' | 'percent' | 'number' | 'text'
+  icon?: LucideIcon
+  color?: string
 }
 
-export default function KPICard({
-  title,
-  value,
-  format = 'number',
-  change,
-  changeLabel,
-  icon: Icon,
-  iconColor = 'text-brand-500',
-  subtitle,
-  loading = false,
-}: KPICardProps) {
-  const formattedValue =
-    format === 'currency'
-      ? formatBRL(value)
-      : format === 'percent'
-      ? formatPercent(value)
-      : formatNumber(value)
-
-  if (loading) {
-    return (
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 animate-pulse">
-        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2 mb-4" />
-        <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-3/4 mb-2" />
-        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/3" />
-      </div>
-    )
+export default function KPICard({ title, value, subtitle, trend, format = 'text', icon: Icon, color = '#6366f1' }: KPICardProps) {
+  const display = () => {
+    if (typeof value === 'string') return value
+    if (format === 'brl') return formatBRL(value as number)
+    if (format === 'percent') return formatPercent(value as number)
+    if (format === 'number') return formatNumber(value as number)
+    return String(value)
   }
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
-          {subtitle && (
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{subtitle}</p>
-          )}
-        </div>
+    <div style={{ background: '#fff', borderRadius: 12, padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', border: '1px solid #f0f0f0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <span style={{ fontSize: 13, fontWeight: 500, color: '#6b7280' }}>{title}</span>
         {Icon && (
-          <div className="p-2 rounded-lg bg-brand-50 dark:bg-brand-900/20">
-            <Icon className={`w-5 h-5 ${iconColor}`} />
+          <div style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: color + '20', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon size={16} style={{ color }} />
           </div>
         )}
       </div>
-
-      <p className="text-2xl font-bold text-slate-900 dark:text-white mb-3">{formattedValue}</p>
-
-      {change !== undefined && (
-        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${trendBg(change)} ${trendColor(change)}`}>
-          <span>{change > 0 ? '\u25b2' : change < 0 ? '\u25bc' : '\u2013'}</span>
-          <span>
-            {change > 0 ? '+' : ''}{change}{'% '}{changeLabel !== undefined ? changeLabel : 'vs m\u00eas anterior'}
+      <div style={{ fontSize: 22, fontWeight: 700, color: '#111827', marginBottom: 4 }}>{display()}</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        {trend !== undefined && (
+          <span style={{ fontSize: 12, fontWeight: 600, color: trendColor(trend) }}>
+            {trend >= 0 ? '+' : ''}{trend.toFixed(1)}%
           </span>
-        </div>
-      )}
+        )}
+        {subtitle && <span style={{ fontSize: 12, color: '#9ca3af' }}>{subtitle}</span>}
+      </div>
     </div>
   )
 }
