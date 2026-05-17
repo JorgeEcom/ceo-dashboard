@@ -4,9 +4,16 @@ export interface GHLOpportunity {
   monetaryValue: number
   status: string
   stage: string
+  pipelineId: string
+  pipelineStageId: string
+  pipelineStageName?: string
   lastUpdated: string
+  updatedAt?: string
+  lastStageChangeAt?: string
+  createdAt?: string
   contactName?: string
   assignedTo?: string
+  source?: string
 }
 
 export interface GHLStage {
@@ -24,6 +31,7 @@ export interface GHLPipeline {
 export interface CEODecision {
   id: string
   type: 'warning' | 'opportunity' | 'critical'
+  severity: 'critical' | 'high' | 'medium' | 'low'
   title: string
   description: string
   impact: string
@@ -40,6 +48,9 @@ export interface TaxClient {
   mrr: number
   dasStatus: 'ok' | 'pending' | 'overdue'
   nextDasDate: string
+  taxSavings: number
+  pendingGuias: number
+  effectiveRate: number
 }
 
 export const FUNNEL_STAGES = ['Lead', 'Qualificado', 'Proposta', 'Negociacao', 'Fechado']
