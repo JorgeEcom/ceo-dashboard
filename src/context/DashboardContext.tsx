@@ -3,9 +3,13 @@ import type { GHLOpportunity, GHLPipeline, CEODecision, TaxClient } from '../typ
 import { fetchAllCRMData } from '../services/ghl.service'
 import { generateCEODecisions, getMockOpportunities, getMockPipeline, getMockTaxClients } from '../utils/aiAnalysis'
 
+// Default credentials â can be overridden via Settings (localStorage)
+const DEFAULT_API_KEY = 'pit-9579a470-f978-4b0c-b8a3-0373a4d6b3d8'
+const DEFAULT_LOCATION_ID = 'GS0MPCOqtgJUjUIIHuTx'
+
 interface DashboardState {
   opportunities: GHLOpportunity[]
-  pipeline: GHLPipeline | null
+  pipeline: GHLPipeline[]
   taxClients: TaxClient[]
   decisions: CEODecision[]
   loading: boolean
@@ -21,7 +25,7 @@ const DashboardContext = createContext<DashboardState | null>(null)
 
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [opportunities, setOpportunities] = useState<GHLOpportunity[]>([])
-  const [pipeline, setPipeline] = useState<GHLPipeline | null>(null)
+  const [pipeline, setPipeline] = useState<GHLPipeline[]>([])
   const [taxClients, setTaxClients] = useState<TaxClient[]>([])
   const [decisions, setDecisions] = useState<CEODecision[]>([])
   const [loading, setLoading] = useState(true)
@@ -32,34 +36,27 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const loadData = useCallback(async () => {
     setLoading(true)
     setError(null)
-    const apiKey = localStorage.getItem('ghl_api_key') || ''
-    const locationId = localStorage.getItem('ghl_location_id') || ''
+    // Use localStorage overrides, fall back to hardcoded defaults
+    const apiKey = localStorage.getItem('ghl_api_key') || DEFAULT_API_KEY
+    const locationId = localStorage.getItem('ghl_location_id') || DEFAULT_LOCATION_ID
     try {
-      let opps: GHLOpportunity[]
-      if (apiKey && locationId) {
-        setIsDemo(false)
-        const data = await fetchAllCRMData(apiKey, locationId)
-        setOpportunities(data.opportunities)
-        setPipeline(data.pipeline)
-        opps = data.opportunities
-      } else {
-        setIsDemo(true)
-        opps = getMockOpportunities()
-        setOpportunities(opps)
-        setPipeline(getMockPipeline())
-      }
+      setIsDemo(false)
+      const data = await fetchAllCRMData(apiKey, locationId)
+      setOpportunities(data.opportunities)
+      setPipeline(data.pipelines)
       const clients = getMockTaxClients()
       setTaxClients(clients)
-      setDecisions(generateCEODecisions(opps, clients))
-    } catch (err) {
+      setDecisions(generateCEODecisions(data.opportunities, clients))
+    } catch (err: any) {
+      console.error('GHL fetch error:', err)
       setIsDemo(true)
       const opps = getMockOpportunities()
       setOpportunities(opps)
-      setPipeline(getMockPipeline())
+      setPipeline([getMockPipeline()])
       const clients = getMockTaxClients()
       setTaxClients(clients)
       setDecisions(generateCEODecisions(opps, clients))
-      setError('Erro ao conectar GHL. Modo demo ativo.')
+      setError('Erro ao conectar GHL: ' + (err?.message || 'falha na requisiÃ§Ã£o'))
     } finally {
       setLoading(false)
       setLastRefresh(new Date())
@@ -77,7 +74,11 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <DashboardContext.Provider value={{ opportunities, pipeline, taxClients, decisions, loading, error, lastRefresh, isDemo, refresh: loadData, resolveDecision, updateTaxClients }}>
+    <DashboardContext.Provider value={{
+      opportunities, pipeline, taxClients, decisions,
+      loading, error, lastRefresh, isDemo,
+      refresh: loadData, resolveDecision, updateTaxClients,
+    }}>
       {children}
     </DashboardContext.Provider>
   )
