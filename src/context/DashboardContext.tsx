@@ -4,14 +4,14 @@ import { fetchAllCRMData } from '../services/ghl.service'
 import { generateCEODecisions, getMockOpportunities, getMockPipeline, getMockTaxClients } from '../utils/aiAnalysis'
 
 // Default credentials â can be overridden via Settings (localStorage)
-const DEFAULT_API_KEY = 'pit-9579a470-f978-4b0c-b8a3-0373a4d6b3d8'
+const DEFAULT_API_KEY = 'pit-a67227b7-3db3-435e-8875-bcdd271ef82b'
 const DEFAULT_LOCATION_ID = 'GS0MPCOqtgJUjUIIHuTx'
 
 interface DashboardState {
   opportunities: GHLOpportunity[]
   pipeline: GHLPipeline[]
   taxClients: TaxClient[]
-  decisions: CEODecision[]
+  decisions: CEODecision[]h
   loading: boolean
   error: string | null
   lastRefresh: Date | null
